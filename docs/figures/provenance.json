@@ -3,15 +3,13 @@
     "source_archive": "root.zip",
     "source_path": "Figures/Results/Signal - Epidural 05.pdf",
     "source_sha256": "3d9a428726f3f3fad4ffdd2f8aef5105f8d72a31fb5632f88c89dce51fa4485d",
-    "rendering": "Original PDF converted to SVG; upper response panels retained (0-352 pt). Lower diagnostic heatmap omitted. Paint adapted for dark background; geometry unchanged.",
-    "scientific_changes": "None. Units, axes, sample counts and traces retained."
+    "rendering": "Original PDF retained unchanged as an input for docs/traces."
   },
   "intracortical-response": {
     "source_archive": "root.zip",
     "source_path": "Figures/Results/Signal - Intracortical 09.pdf",
     "source_sha256": "4c3bc3131cac91081d01e163cb5729f279100cbfdbaa0906529343a5ab972382",
-    "rendering": "Original PDF converted to SVG; upper response panels retained (0-352 pt). Lower diagnostic heatmap omitted. Paint adapted for dark background; geometry unchanged.",
-    "scientific_changes": "None. Units, axes, sample counts and traces retained."
+    "rendering": "Original PDF retained unchanged as an input for docs/traces."
   },
   "noise-response": {
     "source_archive": "root.zip",
@@ -20,8 +18,9 @@
     "rendering": "Original PDF retained unchanged as an input for docs/traces."
   },
   "reported-changes": {
-    "source": "EMBC 2025 V6 manuscript, Table II",
-    "rendering": "New chart of reported percent changes; no data reanalysis."
+    "file": "docs/figures/reported-changes.png",
+    "source": "EMBC 2025 paper, Table II (docs/figures/reported-changes.json)",
+    "rendering": "Bar chart of the reported percent changes drawn with matplotlib; no data reanalysis."
   },
   "interactive-traces": {
     "files": [

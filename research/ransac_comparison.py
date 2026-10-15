@@ -1,4 +1,4 @@
-"""Compare filtered epochs and RANSAC using the manuscript's parameter table.
+"""Compare filtered epochs and RANSAC using the paper's parameter table.
 
 Accepts already preprocessed MNE epochs with a reviewed electrode montage.
 This helper does not recreate the original datasets or preprocessing choices.

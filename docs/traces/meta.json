@@ -1,5 +1,5 @@
 {
- "source": "Vector paths of the manuscript figures in docs/figures, digitised by build_data.py.",
+ "source": "Vector paths of the paper's figures in docs/figures, digitised by build_data.py.",
  "encoding": "int16 little-endian in 0.1 µV, ordered [panel][channel][sample]; panels are Filtered, Filtered + RANSAC.",
  "flags": "RANSAC bad-epoch log as rasterised in each figure: one string per channel, one character per image row (1 = flagged).",
  "modes": {

@@ -1,9 +1,9 @@
-"""Digitise the manuscript's RANSAC example figures for the interactive page.
+"""Digitise the paper's RANSAC example figures for the interactive page.
 
 MNE drew the figures as vector PDFs, so every channel's averaged response is stored as a path.
 This reads the paths back into seconds and microvolts, matches each trace to its electrode
 through MNE's spatial colours, and writes 0.1 µV int16 traces next to this file. No recording is
-reanalysed: the output is only as precise as the published figures.
+reanalysed, so the output is only as precise as the published figures.
 
     python -m pip install pymupdf
     python docs/traces/build_data.py
@@ -188,7 +188,7 @@ def digitise(key, filename, positions):
 
 def main():
     meta = {
-        'source': 'Vector paths of the manuscript figures in docs/figures, digitised by build_data.py.',
+        'source': "Vector paths of the paper's figures in docs/figures, digitised by build_data.py.",
         'encoding': 'int16 little-endian in 0.1 µV, ordered [panel][channel][sample]; panels are Filtered, Filtered + RANSAC.',
         'flags': 'RANSAC bad-epoch log as rasterised in each figure: one string per channel, one character per image row (1 = flagged).',
         'modes': {key: digitise(key, *source) for key, source in SOURCES.items()},

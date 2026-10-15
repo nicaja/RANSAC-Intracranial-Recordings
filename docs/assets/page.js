@@ -1,5 +1,5 @@
-// RANSAC step by step on the EMBC 2025 arrays: sample contacts, predict the rest, compare, repeat,
-// decide over epochs, rebuild. Traces come from ../traces (int16, 0.1 µV, [filtered|ransac][channel][sample]).
+// How RANSAC finds bad contacts on the EMBC 2025 arrays: sample contacts, predict the rest, compare,
+// repeat, reject over epochs, rebuild. Traces come from ../traces (int16, 0.1 µV, [filtered|ransac][channel][sample]).
 // Steps 1-4 replay autoreject's procedure on the averaged response, with inverse-distance weighting in
 // place of spherical splines. Step 5 uses the paper's per-epoch flags and step 6 its RANSAC output.
 
@@ -21,44 +21,44 @@ const SETTINGS = {
   default: { min_channels: 0.25, n_resample: 50, min_corr: 0.75 },
 };
 const RECORDINGS = {
-  epidural: { title: 'Epidural µECoG', settings: 'tuned', note: 'Tuned settings, as used for the epidural data in the paper' },
-  intracortical: { title: 'Intracortical MEA', settings: 'default', note: 'Default settings, as used for the intracortical data in the paper' },
-  noise: { title: 'Noise only (µECoG)', settings: 'tuned', note: 'The paper does not list settings for this example, so it is shown with the tuned ones' },
+  epidural: { title: 'Epidural µECoG', settings: 'tuned', note: 'We tuned these for the epidural data.' },
+  intracortical: { title: 'Intracortical MEA', settings: 'default', note: 'Default autoreject settings, as in the paper. Our tuned settings attenuated this signal.' },
+  noise: { title: 'Noise only (µECoG)', settings: 'tuned', note: 'We did not report settings for this example; here it uses the tuned ones.' },
 };
 const STEPS = [
   {
     label: 'sample', ms: 2600,
     title: (x) => `Pick ${x.k} random contacts`,
-    caption: (x) => `RANSAC starts by picking a random ${x.s.min_channels * 100}% of the contacts (${x.k} of ${x.n}) to act as a reference.`,
+    caption: (x) => `RANSAC starts with a random ${x.s.min_channels * 100}% of the contacts (${x.k} of ${x.n}) and predicts the rest from them.`,
   },
   {
     label: 'predict', ms: 2800,
     title: () => 'Predict every other contact from them',
-    caption: () => 'From those few contacts it predicts what every other contact should have recorded (blue). autoreject interpolates with spherical splines; this replay uses a simpler distance-weighted average.',
+    caption: () => 'In autoreject the prediction is a spherical-spline interpolation. We use a simpler distance-weighted average here, which makes the correlations in steps 3 and 4 illustrative only.',
   },
   {
     label: 'compare', ms: 2800,
     title: (x) => `Correlate with the prediction · below ${x.s.min_corr} is bad`,
     caption: (x) => {
       const unlucky = x.subsets[0].filter((i) => x.m.channels[i].bad).map((i) => x.m.channels[i].name);
-      const note = unlucky.length ? ` This subset happens to include ${unlucky.length > 1 ? 'bad contacts' : 'a bad contact'} (${unlucky.join(', ')}), which can drag good neighbours down too.` : '';
-      return `Each contact is correlated with its prediction. Below ${x.s.min_corr}, the contact counts as bad for this epoch.${note}`;
+      const note = unlucky.length ? ` This subset includes ${unlucky.length > 1 ? 'bad contacts' : 'a bad contact'} (${unlucky.join(', ')}), so nearby good contacts can score low too.` : '';
+      return `RANSAC runs this test on every epoch; here we run it once, on the averaged response.${note}`;
     },
   },
   {
     label: 'repeat', ms: 4600,
     title: (x) => `Repeat with ${x.s.n_resample} subsets, keep the median`,
-    caption: (x) => `This runs again with ${x.s.n_resample} random subsets and keeps the median prediction, so a few unlucky picks, even ones that include bad contacts, cannot decide on their own.`,
+    caption: (x) => `Each contact is now compared with the median of ${x.s.n_resample} predictions. One unlucky subset can no longer make it look bad.`,
   },
   {
-    label: 'decide', ms: 3400,
-    title: () => 'Over all epochs: bad in more than 40% → rejected',
-    caption: (x) => `The test runs on every single stimulus, not only on the average shown here. Contacts flagged in more than 40% of the ${x.m.n_ave} epochs are rejected. These shares come from the paper's bad-epoch log.`,
+    label: 'reject', ms: 3400,
+    title: (x) => `Reject contacts bad in more than 40% of the ${x.m.n_ave} epochs`,
+    caption: () => "The percentages are approximate: we read them off a rasterised image of the paper's bad-epoch log.",
   },
   {
     label: 'rebuild', ms: 3800,
     title: () => 'Rebuild rejected contacts from the good ones',
-    caption: () => 'Rejected contacts are replaced by interpolating from the good ones. This is the RANSAC output reported in the paper.',
+    caption: () => "The blue traces are the paper's RANSAC output, rebuilt with MNE's interpolate_bads. The faint red lines are the traces before RANSAC.",
   },
 ];
 const HOLD_END = 2400;
@@ -189,14 +189,14 @@ function build() {
 
   const num = el('text', { class: 'f-num', x: 0, y: 22 }, svg);
   const title = el('text', { class: 'f-step', x: 22, y: 22 }, svg);
-  const right = el('text', { class: 'f-right', x: W - 2, y: 22 }, svg);
-  el('text', { class: 'f-right', x: W - 2, y: 40 }, svg).textContent = `${RECORDINGS[model.key].title} · average of ${m.n_ave} stimuli`;
+  const right = el('text', { class: 'f-right', x: W - 2, y: 44 }, svg);
+  el('text', { class: 'f-right', x: W - 2, y: 22 }, svg).textContent = `${RECORDINGS[model.key].title} · average of ${m.n_ave} epochs`;
 
   const cells = m.channels.map((c, i) => {
     const x = c.col * (cw + GAP);
     const y = GRID_Y + (rows - 1 - c.row) * (CELL_H + GAP);
     const g = el('g', { transform: `translate(${x.toFixed(1)},${y})` }, svg);
-    const bg = el('rect', { class: 'cell-bg', width: cw.toFixed(1), height: CELL_H, rx: 5 }, g);
+    const bg = el('rect', { class: 'cell-bg', width: cw.toFixed(1), height: CELL_H }, g);
     el('text', { class: 'ch', x: 6, y: 12 }, g).textContent = c.name;
     const r = el('text', { class: 'r', x: cw - 6, y: 12 }, g);
     el('line', { class: 'stim', x1: x0ms, x2: x0ms, y1: inner.y0 - 2, y2: inner.y1 }, g);
@@ -207,8 +207,8 @@ function build() {
     const pred = el('path', { class: 'pred', opacity: 0 }, g);
     const bar = el('g', { opacity: 0 }, g);
     const tw = cw - 48;
-    el('rect', { class: 'track', x: 6, y: CELL_H - 13, width: tw, height: 6, rx: 3 }, bar);
-    const fill = el('rect', { class: 'fill', x: 6, y: CELL_H - 13, width: 0, height: 6, rx: 3 }, bar);
+    el('rect', { class: 'track', x: 6, y: CELL_H - 12, width: tw, height: 5 }, bar);
+    const fill = el('rect', { class: 'fill', x: 6, y: CELL_H - 12, width: 0, height: 5 }, bar);
     el('line', { class: 'tick', x1: 6 + UNBROKEN_TIME * tw, x2: 6 + UNBROKEN_TIME * tw, y1: CELL_H - 16, y2: CELL_H - 4 }, bar);
     const share = el('text', { class: 'share', x: cw - 6, y: CELL_H - 6 }, bar);
     return { bg, r, ghost, trace, pred, bar, fill, share, tw, before, after, predKey: null };
@@ -216,17 +216,21 @@ function build() {
 
   // legend and scale bar
   const lg = el('g', { transform: `translate(0,${legendY})` }, svg);
-  el('rect', { class: 'swatch-sample', x: 0, y: -10, width: 14, height: 12, rx: 3 }, lg);
-  el('text', { class: 'legend', x: 20, y: 0 }, lg).textContent = 'sampled contact';
-  el('line', { class: 'swatch-pred', x1: 140, x2: 158, y1: -4, y2: -4 }, lg);
-  el('text', { class: 'legend', x: 164, y: 0 }, lg).textContent = 'prediction / rebuilt signal';
-  el('rect', { class: 'swatch-bad', x: 340, y: -10, width: 14, height: 12, rx: 3 }, lg);
-  el('text', { class: 'legend', x: 360, y: 0 }, lg).textContent = 'rejected contact';
+  el('rect', { class: 'swatch-sample', x: 0.75, y: -9.25, width: 11, height: 11 }, lg);
+  el('text', { class: 'legend', x: 18, y: 0 }, lg).textContent = 'sampled contact';
+  el('line', { class: 'swatch-pred', x1: 126, x2: 144, y1: -4, y2: -4 }, lg);
+  el('text', { class: 'legend', x: 150, y: 0 }, lg).textContent = 'prediction / rebuilt signal';
+  el('rect', { class: 'swatch-low', x: 316, y: -10, width: 12, height: 12 }, lg);
+  el('text', { class: 'legend', x: 334, y: 0 }, lg).textContent = 'correlation below threshold';
+  el('rect', { class: 'swatch-bad', x: 509, y: -9, width: 10, height: 10 }, lg);
+  el('text', { class: 'legend', x: 527, y: 0 }, lg).textContent = 'rejected contact';
+  el('line', { class: 'swatch-ghost', x1: 640, x2: 658, y1: -4, y2: -4 }, lg);
+  el('text', { class: 'legend', x: 664, y: 0 }, lg).textContent = 'before RANSAC';
   const uv = [10, 20, 25, 50, 100, 200, 250, 500].reduce((best, v) => (Math.abs(v - (d.hi - d.lo) / 3) < Math.abs(best - (d.hi - d.lo) / 3) ? v : best));
   const hPx = (0.1 / span) * (inner.x1 - inner.x0);
   const vPx = (uv / (d.hi - d.lo)) * (inner.y1 - inner.y0);
   const sx = W - hPx - 50;
-  el('path', { d: `M${sx} ${-4 - vPx} L${sx} -4 l${hPx.toFixed(1)} 0`, fill: 'none', stroke: 'currentColor', 'stroke-width': 1.3 }, lg);
+  el('path', { class: 'scalebar', d: `M${sx} ${-4 - vPx} L${sx} -4 l${hPx.toFixed(1)} 0` }, lg);
   el('text', { class: 'legend', x: sx - 6, y: -vPx / 2, 'text-anchor': 'end' }, lg).textContent = `${uv} µV`;
   el('text', { class: 'legend', x: sx + hPx + 6, y: 0 }, lg).textContent = '100 ms';
 
@@ -269,14 +273,16 @@ function render(t) {
   m.channels.forEach((c, i) => {
     const cell = view.cells[i];
     const sampled = subset?.includes(i);
+    const rv = r && !sampled ? Math.round(r[i] * 100) / 100 : null;
+    const low = rv !== null && rv < s.min_corr;
     cell.bg.classList.toggle('sampled', !!sampled);
-    cell.bg.classList.toggle('low', !!r && !sampled && r[i] < s.min_corr && showR > 0.5);
+    cell.bg.classList.toggle('low', low && showR > 0.5);
     cell.bg.classList.toggle('rejected', c.bad && (step === 5 || (step === 4 && share[i] * decide > UNBROKEN_TIME)));
     if (showPred && !sampled) predPath(cell, i, count);
     cell.pred.setAttribute('opacity', sampled ? 0 : showPred.toFixed(2));
-    cell.r.textContent = r && !sampled ? r[i].toFixed(2) : '';
+    cell.r.textContent = rv === null ? '' : rv.toFixed(2).replace('-', '−');
     cell.r.setAttribute('opacity', showR.toFixed(2));
-    cell.r.classList.toggle('low', !!r && r[i] < s.min_corr);
+    cell.r.classList.toggle('low', low);
     cell.bar.setAttribute('opacity', step === 4 ? 1 : 0);
     if (step === 4) {
       const v = share[i] * decide;
@@ -287,7 +293,7 @@ function render(t) {
     }
     if (c.bad) {
       cell.trace.setAttribute('d', pathOf(cell.before, cell.after, rebuild));
-      cell.trace.style.stroke = step === 5 ? 'var(--pred)' : step === 4 && share[i] * decide > UNBROKEN_TIME ? 'var(--bad)' : '';
+      cell.trace.style.stroke = step === 5 ? (rebuild < 0.5 ? 'var(--bad)' : 'var(--pred)') : step === 4 && share[i] * decide > UNBROKEN_TIME ? 'var(--bad)' : '';
       cell.ghost.style.opacity = (0.3 * rebuild).toFixed(2);
     }
   });
@@ -298,7 +304,7 @@ function render(t) {
   if (state.shown !== step) {
     state.shown = step;
     const cap = $('#caption');
-    if (cap) cap.textContent = STEPS[step].caption(x);
+    if (cap) { cap.setAttribute('aria-live', state.playing ? 'off' : 'polite'); cap.textContent = STEPS[step].caption(x); }
     document.querySelectorAll('#steps button').forEach((b, j) => { if (j === step) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
   }
 }
@@ -317,7 +323,7 @@ function frame(now) {
 function setPlaying(p) {
   state.playing = p;
   const b = $('#play');
-  if (b) { b.textContent = p ? '❚❚' : '▶'; b.setAttribute('aria-label', p ? 'Pause' : 'Play'); }
+  if (b) { b.textContent = p ? 'pause' : 'play'; b.setAttribute('aria-label', p ? 'Pause' : 'Play'); }
 }
 
 let request = 0;
@@ -331,7 +337,7 @@ async function setMode(key) {
   const set = $('#settings');
   if (set) {
     const { s, k, n } = model;
-    set.textContent = `${RECORDINGS[key].note}: ${k} of ${n} contacts per subset, ${s.n_resample} subsets, correlation threshold ${s.min_corr}, rejected when bad in more than 40% of epochs.`;
+    set.textContent = `n_resample ${s.n_resample}, min_channels ${s.min_channels} (${k} of ${n} contacts), min_corr ${s.min_corr}, unbroken_time ${UNBROKEN_TIME}. ${RECORDINGS[key].note}`;
   }
   build();
   render(state.t);
@@ -348,7 +354,7 @@ async function init() {
     const li = document.createElement('li');
     const b = document.createElement('button');
     b.type = 'button';
-    b.innerHTML = `<span class="n">${i + 1}</span>${st.label}`;
+    b.innerHTML = `<span class="n">${i + 1}</span> ${st.label}`;
     b.addEventListener('click', () => { setPlaying(false); state.t = STARTS[i] + st.ms - 1; render(state.t); });
     li.appendChild(b);
     list.appendChild(li);

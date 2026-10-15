@@ -48,8 +48,13 @@ def main():
     images = [Image.open(io.BytesIO(png)).convert('RGB') for png, _ in frames]
     if len({im.size for im in images}) != 1:
         raise ValueError('Capture frames differ in size.')
-    # One shared palette keeps colours stable across frames.
-    palette = images[len(images) // 2].quantize(colors=96, method=Image.Quantize.MEDIANCUT)
+    # One shared palette keeps colours stable across frames. Build it from frames across every step, so
+    # colours that only appear in some steps (sampled, low correlation, rejected) keep their hue.
+    picks = images[:: max(1, len(images) // 16)]
+    sheet = Image.new('RGB', (images[0].width, images[0].height * len(picks)))
+    for k, im in enumerate(picks):
+        sheet.paste(im, (0, k * im.height))
+    palette = sheet.quantize(colors=96, method=Image.Quantize.MEDIANCUT)
     images = [im.quantize(palette=palette, dither=Image.Dither.NONE) for im in images]
     images[0].save(args.output, save_all=True, append_images=images[1:], duration=durations, loop=0, optimize=True, disposal=1)
     print(f'{args.output}: {len(images)} frames, {sum(durations) / 1000:.1f} s, {args.output.stat().st_size / 1e6:.2f} MB')
