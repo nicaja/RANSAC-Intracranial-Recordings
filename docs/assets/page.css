@@ -1,31 +1,33 @@
-/* Light colours follow GitHub's light theme and dark colours its dark theme, so the page and the
-   README figures rendered from it sit on the same backgrounds as GitHub itself. */
+/* Palette: cream #F6EABE, apricot #F6D7A7, mint #C8E3D4 and teal #87AAAA (colorhunt.co). Cream is the
+   array film, mint marks sampled contacts, apricot low correlations and teal predictions; rejected contacts
+   use a terracotta drawn from the apricot. On white, lines and text use darker shades of the same hues;
+   on GitHub's dark background the pastels are used as they are. Backgrounds match GitHub's themes. */
 :root {
-  --bg: #ffffff; --text: #1f2328; --ink: #1f2328; --muted: #59636e; --faint: #818b98; --rule: #d1d9e0;
-  --cell: #ffffff; --cell-rule: #d1d9e0; --film: #f6efe1; --base: #eef1f4;
-  --trace: #24292f; --stim: #9aa3ad; --track: #e6e9ed; --bar: #818b98;
-  --tissue: #efe9e1; --surface: #57606a; --dura: #8c959f;
-  --pred: #0969da; --bad: #cf222e; --bad-bg: #ffebe9; --sample: #bf8700; --sample-bg: #fff8c5;
+  --bg: #ffffff; --text: #1f2328; --ink: #1f2328; --muted: #5c6b6b; --faint: #8a9696; --rule: #ddd5c0;
+  --cell: #ffffff; --cell-rule: #ddd5c0; --film: #f6eabe; --base: #f6eabe;
+  --trace: #2b2f33; --stim: #b5ac95; --track: #efe7d2; --bar: #a69d86;
+  --tissue: #fae9cf; --surface: #9c876a; --dura: #87aaaa;
+  --pred: #3f7778; --bad: #b8502f; --bad-bg: #f6d7a7; --sample: #4f8f74; --sample-bg: #c8e3d4;
   --serif: "Newsreader", Charter, Georgia, serif;
   --sans: "IBM Plex Sans Condensed", "Arial Narrow", "Roboto Condensed", Arial, sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0d1117; --text: #e6edf3; --ink: #e6edf3; --muted: #9198a1; --faint: #6e7681; --rule: #30363d;
-    --cell: #0d1117; --cell-rule: #30363d; --film: #1d1a13; --base: #161b22;
-    --trace: #c9d1d9; --stim: #484f58; --track: #21262d; --bar: #6e7681;
-    --tissue: #1c2027; --surface: #8b949e; --dura: #6e7681;
-    --pred: #58a6ff; --bad: #f85149; --bad-bg: #301a1f; --sample: #d29922; --sample-bg: #2b2519;
+    --bg: #0d1117; --text: #e6edf3; --ink: #e6edf3; --muted: #9aa7a7; --faint: #6b7878; --rule: #2e3436;
+    --cell: #0d1117; --cell-rule: #30363d; --film: #1f1d16; --base: #1f1d16;
+    --trace: #c9d1d9; --stim: #4a5252; --track: #22282a; --bar: #6b7878;
+    --tissue: #241e17; --surface: #b8a283; --dura: #87aaaa;
+    --pred: #87aaaa; --bad: #ec9a76; --bad-bg: #4a331c; --sample: #c8e3d4; --sample-bg: #22392e;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0d1117; --text: #e6edf3; --ink: #e6edf3; --muted: #9198a1; --faint: #6e7681; --rule: #30363d;
-  --cell: #0d1117; --cell-rule: #30363d; --film: #1d1a13; --base: #161b22;
-  --trace: #c9d1d9; --stim: #484f58; --track: #21262d; --bar: #6e7681;
-  --tissue: #1c2027; --surface: #8b949e; --dura: #6e7681;
-  --pred: #58a6ff; --bad: #f85149; --bad-bg: #301a1f; --sample: #d29922; --sample-bg: #2b2519;
+  --bg: #0d1117; --text: #e6edf3; --ink: #e6edf3; --muted: #9aa7a7; --faint: #6b7878; --rule: #2e3436;
+  --cell: #0d1117; --cell-rule: #30363d; --film: #1f1d16; --base: #1f1d16;
+  --trace: #c9d1d9; --stim: #4a5252; --track: #22282a; --bar: #6b7878;
+  --tissue: #241e17; --surface: #b8a283; --dura: #87aaaa;
+  --pred: #87aaaa; --bad: #ec9a76; --bad-bg: #4a331c; --sample: #c8e3d4; --sample-bg: #22392e;
   color-scheme: dark;
 }
 
@@ -97,7 +99,7 @@ footer p { max-width: 46em; margin: 0; }
 .r.low { fill: var(--bad); font-weight: 600; }
 .stim { stroke: var(--stim); stroke-width: .8; stroke-dasharray: 2 2; }
 .trace { fill: none; stroke: var(--trace); stroke-width: 1; stroke-linejoin: round; }
-.pred { fill: none; stroke: var(--pred); stroke-width: 1.3; stroke-linejoin: round; }
+.pred { fill: none; stroke: var(--pred); stroke-width: 1.5; stroke-linejoin: round; }
 .ghost { fill: none; stroke: var(--bad); stroke-width: 1; opacity: 0; }
 .track { fill: var(--track); }
 .fill { fill: var(--bar); }

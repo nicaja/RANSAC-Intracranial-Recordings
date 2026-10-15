@@ -290,6 +290,8 @@ function render(t) {
     cell.site.classList.toggle('rejected', rejected);
     if (showPred && !sampled) predPath(cell, i, count);
     cell.pred.setAttribute('opacity', sampled ? 0 : showPred.toFixed(2));
+    // fade the recorded trace under a prediction; sampled contacts are the reference and stay crisp
+    cell.trace.style.opacity = showPred > 0.05 && !sampled ? '0.4' : '';
     cell.r.textContent = rv === null ? '' : rv.toFixed(2).replace('-', '−');
     cell.r.setAttribute('opacity', showR.toFixed(2));
     cell.r.classList.toggle('low', low);

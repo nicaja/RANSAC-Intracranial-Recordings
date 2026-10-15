@@ -69,6 +69,7 @@ def chart_svg(data):
     y = lambda v: top + (hi - v) / (hi - lo) * (h - top - bottom)
     metrics = [('Standard deviation', 'SD'), ('Variance', 'Variance'), ('Correlation', 'Correlation')]
     colours = ['var(--c1)', 'var(--c2)', 'var(--c3)']
+    strokes = ['var(--s1)', 'var(--s2)', 'var(--s3)']
     group = (w - left - right) / len(metrics)
     bar, gap = 38, 6
     parts = [f'<svg id="chart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}">']
@@ -84,14 +85,14 @@ def chart_svg(data):
         for k, v in enumerate(data['percent_changes'][key]):
             x = x0 + k * (bar + gap)
             top_y, bot_y = sorted((y(0), y(v)))
-            parts.append(f'<rect x="{x:.1f}" y="{top_y:.1f}" width="{bar}" height="{bot_y - top_y:.1f}" style="fill:{colours[k]}"/>')
+            parts.append(f'<rect x="{x:.1f}" y="{top_y:.1f}" width="{bar}" height="{bot_y - top_y:.1f}" style="fill:{colours[k]};stroke:{strokes[k]}"/>')
             label = f'{v:+.1f}%'.replace('-', '−')
             ly = y(v) - 6 if v >= 0 else y(v) + 15
             parts.append(f'<text class="c-value" x="{x + bar / 2:.1f}" y="{ly:.1f}" text-anchor="middle">{label}</text>')
         parts.append(f'<text class="c-group" x="{cx:.1f}" y="{h - 10}" text-anchor="middle">{name}</text>')
     lx = left
     for k, name in enumerate(data['profiles']):
-        parts.append(f'<rect x="{lx}" y="12" width="12" height="12" style="fill:{colours[k]}"/>')
+        parts.append(f'<rect x="{lx + 0.5}" y="12.5" width="11" height="11" style="fill:{colours[k]};stroke:{strokes[k]}"/>')
         parts.append(f'<text class="c-key" x="{lx + 18}" y="22.5">{name}</text>')
         lx += 18 + 6.6 * len(name) + 26
     parts.append('</svg>')
@@ -104,8 +105,8 @@ def render_chart(browser, url, theme):
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{url}assets/page.css">
 <style>
-  :root {{ --c1: #0969da; --c2: #8250df; --c3: #818b98; }}
-  :root[data-theme="dark"] {{ --c1: #58a6ff; --c2: #a371f7; --c3: #6e7681; }}
+  :root {{ --c1: #87aaaa; --c2: #f6d7a7; --c3: #c8e3d4; --s1: #5f8a8a; --s2: #cfa462; --s3: #8db9a1; }}
+  :root[data-theme="dark"] {{ --c1: #87aaaa; --c2: #f6d7a7; --c3: #c8e3d4; --s1: #87aaaa; --s2: #f6d7a7; --s3: #c8e3d4; }}
   body {{ margin: 0; }}
   #wrap {{ display: inline-block; padding: 14px 18px 10px; background: var(--bg); }}
   svg text {{ font-family: var(--sans); font-variant-numeric: tabular-nums; }}
