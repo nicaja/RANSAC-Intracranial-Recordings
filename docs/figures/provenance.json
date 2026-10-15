@@ -24,14 +24,20 @@
     "rendering": "New chart of reported percent changes; no data reanalysis."
   },
   "interactive-traces": {
-    "files": ["docs/traces/epidural.bin", "docs/traces/intracortical.bin", "docs/traces/noise.bin", "docs/traces/meta.json"],
+    "files": [
+      "docs/traces/epidural.bin",
+      "docs/traces/intracortical.bin",
+      "docs/traces/noise.bin",
+      "docs/traces/meta.json"
+    ],
     "source": "Vector paths of epidural-, intracortical- and noise-response-original.pdf, read by docs/traces/build_data.py.",
     "method": "Axes calibrated from tick marks and labels; each path assigned to its electrode by MNE's spatial colour for the montage in general/loader.py (µECoG) or montage_remap('Experiment 09') in preprocessing_MEA/utils.py (MEA), checked against the figure legends. Path vertices lie on a 2034.5 Hz grid (24414 Hz decimated by 12); traces are linearly resampled onto that grid and stored as int16 in 0.1 µV.",
     "flags": "RANSAC bad-epoch logs are the figures' rasterised heatmaps sampled at each channel's centre: 233 rows for 600 epochs (epidural, noise) and 227 rows for 240 epochs (intracortical).",
     "scientific_changes": "None. No recording is reanalysed; precision is limited to the published figures."
   },
-  "consensus-animation": {
-    "files": ["docs/figures/ransac-consensus-dark.gif", "docs/figures/ransac-consensus-light.gif"],
-    "rendering": "Frames of docs/index.html in capture mode (?capture&theme=...&mode=...) rendered with headless Edge by docs/traces/render_animation.py. The blend between filtered and RANSAC states is a visual transition; only its end points are data."
+  "steps-animation": {
+    "file": "docs/figures/ransac-steps.gif",
+    "rendering": "Frames of docs/index.html in capture mode (?capture&mode=epidural) sampled every 100 ms along the page's step timeline with headless Edge by docs/traces/render_animation.py.",
+    "method": "Steps 1-4 replay autoreject's Ransac on the averaged response: seeded random subsets of round(min_channels x channels) contacts, inverse-distance-weighted prediction in place of spherical splines, median over subsets, uncentred correlation against min_corr. Step 5 uses the paper's bad-epoch log; step 6 the paper's RANSAC output. Blends between states are visual transitions."
   }
 }

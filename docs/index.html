@@ -3,73 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Consensus on the array · RANSAC, EMBC 2025</title>
-  <meta name="description" content="How RANSAC judged and rebuilt channels on a 32-channel µECoG grid, a 16-channel microelectrode array and a noise-only recording. Interactive figures from the EMBC 2025 study.">
+  <title>Can RANSAC fix bad electrodes?</title>
+  <meta name="description" content="How RANSAC samples, predicts, compares and rebuilds contacts on an epidural µECoG grid and an intracortical microelectrode array, from the EMBC 2025 study.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='1' width='6' height='6' rx='1.5' fill='%23e3a008'/%3E%3Crect x='9' y='1' width='6' height='6' rx='1.5' fill='%232a5db0'/%3E%3Crect x='1' y='9' width='6' height='6' rx='1.5' fill='%232a5db0'/%3E%3Crect x='9' y='9' width='6' height='6' rx='1.5' fill='none' stroke='%23d1452f' stroke-width='1.5'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/consensus.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/page.css">
 </head>
 <body>
   <main>
-    <header class="masthead page-only">
-      <p class="kicker">IEEE EMBC 2025 · interactive figures</p>
-      <h1>Consensus on the array</h1>
-      <p class="deck">RANSAC flags channels it cannot predict from the rest of the array and rebuilds them by interpolation. On a surface µECoG grid that removed faulty channels. On a penetrating array it reshaped real responses. On pure noise it produced a convincing, highly correlated signal.</p>
-      <p class="byline">From <a href="https://doi.org/10.1109/EMBC58623.2025.11252752">Strengths &amp; Weaknesses of RANSAC applied to Epidural &amp; Intracortical Recordings</a>, Atchuthan, Andreis, Jensen &amp; Meijs · <a href="https://github.com/nicaja/RANSAC-Intracranial-Recordings">code and figures</a></p>
+    <header class="page-only">
+      <p class="kicker">IEEE EMBC 2025</p>
+      <h1>Can RANSAC fix bad electrodes?</h1>
+      <ul class="answers">
+        <li><span>on the surface of the brain</span> mostly yes</li>
+        <li><span>inside the cortex</span> not really</li>
+        <li><span>on pure noise</span> it pretends to</li>
+      </ul>
     </header>
 
-    <nav class="recordings page-only" aria-label="Recording">
-      <button type="button" data-mode="epidural" aria-pressed="true"><span class="num">01</span> Epidural <small>32-ch µECoG</small></button>
-      <button type="button" data-mode="intracortical" aria-pressed="false"><span class="num">02</span> Intracortical <small>16-ch MEA</small></button>
-      <button type="button" data-mode="noise" aria-pressed="false"><span class="num">03</span> Noise only <small>32-ch µECoG</small></button>
-    </nav>
-
-    <section class="plate" id="plate-array" aria-labelledby="fig1-title">
-      <div class="plate-head page-only">
-        <span class="fig">Fig. 1</span>
-        <h2 id="fig1-title">Every electrode, in place</h2>
-        <p class="plate-note" id="recording-note"></p>
+    <section class="page-only" aria-labelledby="arrays-title">
+      <h2 id="arrays-title">The two arrays</h2>
+      <div class="sketches">
+        <svg class="sketch" viewBox="0 0 430 210" role="img" aria-label="Side view: a thin µECoG grid lying on the dura over the cortex.">
+          <text class="s-title" x="10" y="20">Epidural µECoG</text>
+          <text class="s-sub" x="10" y="40">32 contacts in an 8 × 4 grid, on the dura</text>
+          <path class="tissue" d="M10 122 C 90 115, 150 128, 220 121 S 350 115, 420 122 L420 200 L10 200 Z"/>
+          <path class="surface" d="M10 122 C 90 115, 150 128, 220 121 S 350 115, 420 122"/>
+          <path class="dura" d="M10 112 C 120 108, 260 115, 420 111"/>
+          <rect class="film" x="78" y="100" width="258" height="7" rx="2"/>
+          <g class="contacts"><circle cx="94" cy="107" r="3"/><circle cx="126" cy="107" r="3"/><circle cx="158" cy="107" r="3"/><circle cx="190" cy="107" r="3"/><circle cx="222" cy="107" r="3"/><circle cx="254" cy="107" r="3"/><circle cx="286" cy="107" r="3"/><circle cx="318" cy="107" r="3"/></g>
+          <text class="s-label" x="416" y="104" text-anchor="end">dura</text>
+          <text class="s-label" x="410" y="165" text-anchor="end">cortex (S1)</text>
+        </svg>
+        <svg class="sketch" viewBox="0 0 430 210" role="img" aria-label="Side view: a microelectrode array whose shafts, 1 mm apart, go 2 mm into the cortex.">
+          <text class="s-title" x="10" y="20">Intracortical MEA</text>
+          <text class="s-sub" x="10" y="40">16 shafts in a 4 × 4 grid, 1 mm apart</text>
+          <path class="tissue" d="M10 122 C 90 115, 150 128, 220 121 S 350 115, 420 122 L420 200 L10 200 Z"/>
+          <path class="surface" d="M10 122 C 90 115, 150 128, 220 121 S 350 115, 420 122"/>
+          <path class="dura" d="M10 112 C 120 108, 260 115, 420 111"/>
+          <rect class="film" x="140" y="82" width="122" height="9" rx="2"/>
+          <g class="shafts"><path d="M156 91 L156 176 L158 182 L160 176 L160 91"/><path d="M186 91 L186 176 L188 182 L190 176 L190 91"/><path d="M216 91 L216 176 L218 182 L220 176 L220 91"/><path d="M246 91 L246 176 L248 182 L250 176 L250 91"/></g>
+          <path class="bracket" d="M282 121 L288 121 M285 121 L285 182 M282 182 L288 182"/>
+          <text class="s-label" x="294" y="156">2 mm deep</text>
+          <text class="s-label" x="416" y="104" text-anchor="end">dura</text>
+        </svg>
       </div>
-      <div class="wide"><svg id="array" role="img" aria-label="Averaged evoked response of every electrode, laid out as on the array. Flagged channels morph from their filtered signal to their RANSAC reconstruction with the slider."></svg></div>
-      <div class="morph page-only">
-        <button type="button" id="play" class="play" aria-pressed="false">Play</button>
-        <label class="slider">
-          <span>Filtered</span>
-          <input type="range" id="mix" min="0" max="1000" value="0" aria-label="Blend from filtered to RANSAC-reconstructed signals">
-          <span>Filtered + RANSAC</span>
-        </label>
-        <output id="readout" class="readout" aria-live="off"></output>
-      </div>
-      <p class="caption page-only">Each cell is one channel's average over all stimuli, on one shared voltage scale. <span class="key flag">Flagged</span> channels fade into their <span class="key fix">rebuilt</span> signal; good channels did not change. The band underneath is the spread across all channels, with good channels alone in grey. Hover to read values at any time point.</p>
+      <p class="aside">Both arrays recorded from the primary somatosensory cortex of anaesthetised pigs. Responses were evoked by stimulating the ulnar nerve in the forelimb. Sketch not to scale.</p>
     </section>
 
-    <section class="plate page-only" aria-labelledby="fig2-title">
-      <div class="plate-head">
-        <span class="fig">Fig. 2</span>
-        <h2 id="fig2-title">How the verdict builds up</h2>
-        <p class="plate-note">For every epoch, RANSAC predicts each channel from random subsets of the others and flags it when the prediction correlates poorly. A channel flagged in more than 40% of epochs is interpolated everywhere.</p>
+    <section aria-labelledby="steps-title" id="figure">
+      <h2 id="steps-title" class="page-only">What RANSAC does, step by step</h2>
+      <nav class="tabs page-only" aria-label="Recording">
+        <button type="button" data-mode="epidural" aria-pressed="true">Epidural</button>
+        <button type="button" data-mode="intracortical" aria-pressed="false">Intracortical</button>
+        <button type="button" data-mode="noise" aria-pressed="false">Noise only</button>
+      </nav>
+      <div class="stepper page-only" role="group" aria-label="Steps">
+        <button type="button" id="play" class="play" aria-label="Pause">❚❚</button>
+        <ol id="steps"></ol>
       </div>
-      <div class="wide"><svg id="tally" role="img" aria-label="Replay of RANSAC's per-epoch flags, accumulating each channel's share of flagged epochs against the 40% threshold."></svg></div>
-      <div class="morph">
-        <button type="button" id="replay" class="play">Replay</button>
-        <output id="epoch" class="readout"></output>
-      </div>
-    </section>
-
-    <section class="plate page-only" aria-labelledby="fig3-title">
-      <div class="plate-head">
-        <span class="fig">Fig. 3</span>
-        <h2 id="fig3-title">What the summary numbers said</h2>
-        <p class="plate-note">Change after RANSAC, as reported in Table II. Correlation rose in every example, pure noise included, so a higher correlation alone does not show that a signal was recovered.</p>
-      </div>
-      <svg id="numbers" role="img" aria-label="Percent change in standard deviation, variance and correlation after RANSAC for the three examples."></svg>
+      <div class="wide"><svg id="array" role="img" aria-label="Every contact's averaged response laid out as on the array, annotated for the current RANSAC step."></svg></div>
+      <p class="caption page-only" id="caption" aria-live="polite"></p>
+      <p class="aside page-only" id="settings"></p>
     </section>
 
     <footer class="page-only">
-      <p>Traces are digitised from the vector figures of the paper (<a href="https://github.com/nicaja/RANSAC-Intracranial-Recordings/tree/main/docs/traces">build script and data</a>). No recordings are reanalysed, and the epoch flags are only as fine as the published images. Values describe these examples, not a cohort.</p>
+      <p>From <a href="https://doi.org/10.1109/EMBC58623.2025.11252752">Strengths &amp; Weaknesses of RANSAC applied to Epidural &amp; Intracortical Recordings</a>, Atchuthan, Andreis, Jensen &amp; Meijs, IEEE EMBC 2025. Traces are read back from the paper's figures, and the share of flagged epochs comes from its bad-epoch log. Steps 1–4 are replayed on the averaged response with a simplified interpolation. <a href="https://github.com/nicaja/RANSAC-Intracranial-Recordings">Code and data</a></p>
     </footer>
   </main>
-  <script type="module" src="assets/consensus.js"></script>
+  <script type="module" src="assets/page.js"></script>
 </body>
 </html>

@@ -1,13 +1,8 @@
 # Signal Reconstruction with RANSAC
 
-<a href="https://nicaja.github.io/RANSAC-Intracranial-Recordings/">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/figures/ransac-consensus-dark.gif">
-    <img alt="Every electrode's averaged response laid out as on the array. Channels flagged by RANSAC blend from their filtered signal into their reconstruction, for the epidural grid, the intracortical array and a noise-only recording." src="docs/figures/ransac-consensus-light.gif">
-  </picture>
-</a>
+[![RANSAC step by step on the epidural µECoG grid: sample contacts, predict the rest, correlate, repeat, reject, rebuild](docs/figures/ransac-steps.gif)](https://nicaja.github.io/RANSAC-Intracranial-Recordings/)
 
-*Each electrode in its place on the array. Channels flagged by RANSAC (orange) blend into their reconstruction (teal): epidural µECoG, then intracortical MEA, then a noise-only recording. [Explore the interactive figures](https://nicaja.github.io/RANSAC-Intracranial-Recordings/)*
+*RANSAC step by step on the epidural µECoG grid: pick a few random contacts, predict the rest from them, correlate, repeat with new subsets, reject contacts that fail in more than 40% of epochs, and rebuild them. [Interactive version](https://nicaja.github.io/RANSAC-Intracranial-Recordings/), with the intracortical and noise-only examples.*
 
 Research on bad-channel detection and interpolation in high-density epidural micro-ECoG and intracortical microelectrode-array recordings. The study examines how RANSAC's spatial assumptions affect reconstructed signals, and how its behaviour changes between surface and penetrating electrode arrays.
 
@@ -23,7 +18,7 @@ Nickolaj Ajay Atchuthan, Felipe Rettore Andreis, Winnie Jensen, and Suzan Meijs.
 
 ## What the study found
 
-The work compared an epidural signal, an intracortical signal, and a noise-only example from experiments in anaesthetised animals. It used MNE and autoreject to examine changes in waveforms, spatial maps, variance, and reconstruction correlation.
+The work compared an epidural signal, an intracortical signal, and a noise-only example from experiments in anaesthetised pigs, with responses in the primary somatosensory cortex evoked by ulnar nerve stimulation. The epidural recordings used a 32-contact 8 × 4 µECoG grid placed on the dura (setup as in [Meijs et al., 2024](https://doi.org/10.1109/EMBC53108.2024.10782109)); the intracortical recordings used a 16-channel 4 × 4 microelectrode array with shafts 1 mm apart, inserted 2 mm into the cortex ([Janjua et al., 2021](https://doi.org/10.1016/j.ibneur.2021.08.004)). It used MNE and autoreject to examine changes in waveforms, spatial maps, variance, and reconstruction correlation.
 
 - Tuned RANSAC settings improved the epidural example by detecting and interpolating faulty channels.
 - The same settings could attenuate legitimate intracortical features. Default settings had only modest effects on the intracortical example.
@@ -37,13 +32,9 @@ The main conclusion is that RANSAC needs modality-specific evaluation. Local act
 
 ## Interactive figures
 
-The [interactive page](https://nicaja.github.io/RANSAC-Intracranial-Recordings/) has three figures for each example:
+The [interactive page](https://nicaja.github.io/RANSAC-Intracranial-Recordings/) sketches the two arrays and walks through RANSAC on each example, as implemented in autoreject: sample a random subset of contacts, predict every contact from it, correlate each contact with its prediction, repeat with new subsets and keep the median prediction, reject contacts that fail in more than 40% of epochs, and rebuild them by interpolation.
 
-- every electrode's averaged response in its place on the array, with a slider from the filtered signal to the RANSAC reconstruction;
-- a replay of RANSAC's per-epoch flags building up to the 40% rule that decides which channels are interpolated;
-- the Table II changes, with correlation rising even for pure noise.
-
-The traces were digitised from the vector paths of the paper's figures. `docs/traces/build_data.py` maps every path back to seconds and microvolts using the figure axes, and assigns it to its electrode through MNE's spatial colours and the recorded montage. No recording is reanalysed. In the digitised data RANSAC left every good channel unchanged, so only the flagged channels differ between the two states. The blend between them is a visual transition; only its end points are data. The flag replay uses the bad-epoch image as rasterised in each figure, so its percentages are approximate. The [original figure PDFs and provenance](docs/figures/) are retained.
+The traces were digitised from the vector paths of the paper's figures. `docs/traces/build_data.py` maps every path back to seconds and microvolts using the figure axes, and assigns it to its electrode through MNE's spatial colours and the recorded montage. No recording is reanalysed. The sampling, prediction and correlation steps are replayed on the averaged response with a distance-weighted interpolation in place of autoreject's spherical splines, so their numbers are illustrative. The rejection step uses the paper's own per-epoch flags, and the rebuilt traces are the paper's RANSAC output. The [original figure PDFs and provenance](docs/figures/) are retained.
 
 ## Code and supporting material
 
