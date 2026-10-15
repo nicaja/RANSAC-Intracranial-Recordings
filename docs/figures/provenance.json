@@ -18,9 +18,12 @@
     "rendering": "Original PDF retained unchanged as an input for docs/traces."
   },
   "reported-changes": {
-    "file": "docs/figures/reported-changes.png",
+    "files": [
+      "docs/figures/reported-changes-light.png",
+      "docs/figures/reported-changes-dark.png"
+    ],
     "source": "EMBC 2025 paper, Table II (docs/figures/reported-changes.json)",
-    "rendering": "Bar chart of the reported percent changes drawn with matplotlib; no data reanalysis."
+    "rendering": "Bar chart of the reported percent changes drawn as SVG with the page's stylesheet and rendered with headless Edge by docs/traces/render_readme_figures.py, in GitHub's light and dark themes; no data reanalysis."
   },
   "interactive-traces": {
     "files": [
@@ -35,8 +38,11 @@
     "scientific_changes": "None. No recording is reanalysed; precision is limited to the published figures."
   },
   "steps-animation": {
-    "file": "docs/figures/ransac-steps.gif",
-    "rendering": "Frames of docs/index.html in capture mode (?capture&mode=epidural) sampled every 100 ms along the page's step timeline with headless Edge by docs/traces/render_animation.py.",
+    "files": [
+      "docs/figures/ransac-steps-light.gif",
+      "docs/figures/ransac-steps-dark.gif"
+    ],
+    "rendering": "Frames of docs/index.html in capture mode (?capture&mode=epidural&theme=light|dark) sampled every 100 ms along the page's step timeline with headless Edge by docs/traces/render_readme_figures.py. Backgrounds match GitHub's light (#ffffff) and dark (#0d1117) themes.",
     "method": "Steps 1-4 replay autoreject's Ransac on the averaged response: seeded random subsets of round(min_channels x channels) contacts, inverse-distance-weighted prediction in place of spherical splines, median over subsets, uncentred correlation against min_corr. Step 5 uses the paper's bad-epoch log; step 6 the paper's RANSAC output. Blends between states are visual transitions."
   }
 }

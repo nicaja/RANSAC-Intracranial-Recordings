@@ -1,6 +1,11 @@
 # Signal Reconstruction with RANSAC
 
-[![Animation of the six RANSAC steps on the 32-contact epidural grid](docs/figures/ransac-steps.gif)](https://nicaja.github.io/RANSAC-Intracranial-Recordings/)
+<a href="https://nicaja.github.io/RANSAC-Intracranial-Recordings/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/figures/ransac-steps-dark.gif">
+    <img alt="Animation of the six RANSAC steps on the 32-contact epidural grid" src="docs/figures/ransac-steps-light.gif">
+  </picture>
+</a>
 
 *RANSAC on the epidural grid. The [interactive version](https://nicaja.github.io/RANSAC-Intracranial-Recordings/) also has the intracortical and noise-only recordings.*
 
@@ -24,7 +29,10 @@ The recordings come from anaesthetised pigs, with responses in the primary somat
 - The same settings attenuated the intracortical signal. With autoreject's defaults the variance barely changed, but most rebuilt contacts came back with larger peaks that line up in time.
 - The noise-only example became more correlated too (0.86 to 1.00), so correlation alone does not show that a reconstruction worked.
 
-![Percent change in SD, variance and correlation from filtered to RANSAC for the three examples](docs/figures/reported-changes.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/reported-changes-dark.png">
+  <img alt="Percent change in SD, variance and correlation from filtered to RANSAC for the three examples" src="docs/figures/reported-changes-light.png">
+</picture>
 
 *From Table II of the paper. Each example is a single recording.*
 

@@ -6,6 +6,7 @@
 const ROOT = new URL('../', import.meta.url);
 const TRACES = new URL('traces/', ROOT);
 const params = new URLSearchParams(location.search);
+if (params.get('theme')) document.documentElement.dataset.theme = params.get('theme');
 const CAPTURE = params.has('capture');
 if (CAPTURE) document.body.classList.add('capture');
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -13,6 +14,7 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const NS = 'http://www.w3.org/2000/svg';
 const W = 920;
 const GAP = 8;
+const PAD = 8; // substrate margin around the contacts
 const CELL_H = 76;
 const GRID_Y = 58;
 const UNBROKEN_TIME = 0.4;
@@ -176,7 +178,7 @@ function build() {
   svg.replaceChildren();
   const { m, d } = model;
   const [cols, rows] = m.grid;
-  const cw = (W - (cols - 1) * GAP) / cols;
+  const cw = (W - 2 * PAD - (cols - 1) * GAP) / cols;
   const inner = { x0: 6, x1: cw - 6, y0: 17, y1: CELL_H - 6 };
   const xs = (k) => inner.x0 + (k / (m.n_t - 1)) * (inner.x1 - inner.x0);
   const yV = (v) => inner.y0 + ((d.hi - v) / (d.hi - d.lo)) * (inner.y1 - inner.y0);
@@ -184,7 +186,7 @@ function build() {
   const span = (m.n_t - 1) * m.dt_s;
   const x0ms = inner.x0 + (-m.t0_s / span) * (inner.x1 - inner.x0);
   const gridH = rows * CELL_H + (rows - 1) * GAP;
-  const legendY = GRID_Y + gridH + 30;
+  const legendY = GRID_Y + gridH + 2 * PAD + 30;
   svg.setAttribute('viewBox', `0 0 ${W} ${legendY + 8}`);
 
   const num = el('text', { class: 'f-num', x: 0, y: 22 }, svg);
@@ -192,12 +194,17 @@ function build() {
   const right = el('text', { class: 'f-right', x: W - 2, y: 44 }, svg);
   el('text', { class: 'f-right', x: W - 2, y: 22 }, svg).textContent = `${RECORDINGS[model.key].title} · average of ${m.n_ave} epochs`;
 
+  // the array itself: a polyimide film under the µECoG contacts, a base plate under the MEA shafts
+  const film = model.key !== 'intracortical';
+  el('rect', { class: `substrate ${film ? 'ecog' : 'mea'}`, x: 0.5, y: GRID_Y + 0.5, width: W - 1, height: gridH + 2 * PAD - 1, rx: film ? 12 : 3 }, svg);
+
   const cells = m.channels.map((c, i) => {
-    const x = c.col * (cw + GAP);
-    const y = GRID_Y + (rows - 1 - c.row) * (CELL_H + GAP);
+    const x = PAD + c.col * (cw + GAP);
+    const y = GRID_Y + PAD + (rows - 1 - c.row) * (CELL_H + GAP);
     const g = el('g', { transform: `translate(${x.toFixed(1)},${y})` }, svg);
     const bg = el('rect', { class: 'cell-bg', width: cw.toFixed(1), height: CELL_H }, g);
-    el('text', { class: 'ch', x: 6, y: 12 }, g).textContent = c.name;
+    const site = el('circle', { class: 'site', cx: 9.5, cy: 8.5, r: 2.6 }, g);
+    el('text', { class: 'ch', x: 16, y: 12 }, g).textContent = c.name;
     const r = el('text', { class: 'r', x: cw - 6, y: 12 }, g);
     el('line', { class: 'stim', x1: x0ms, x2: x0ms, y1: inner.y0 - 2, y2: inner.y1 }, g);
     const before = decimate(d.series[0][i], bins, xs, yV);
@@ -211,7 +218,7 @@ function build() {
     const fill = el('rect', { class: 'fill', x: 6, y: CELL_H - 12, width: 0, height: 5 }, bar);
     el('line', { class: 'tick', x1: 6 + UNBROKEN_TIME * tw, x2: 6 + UNBROKEN_TIME * tw, y1: CELL_H - 16, y2: CELL_H - 4 }, bar);
     const share = el('text', { class: 'share', x: cw - 6, y: CELL_H - 6 }, bar);
-    return { bg, r, ghost, trace, pred, bar, fill, share, tw, before, after, predKey: null };
+    return { bg, site, r, ghost, trace, pred, bar, fill, share, tw, before, after, predKey: null };
   });
 
   // legend and scale bar
@@ -277,7 +284,10 @@ function render(t) {
     const low = rv !== null && rv < s.min_corr;
     cell.bg.classList.toggle('sampled', !!sampled);
     cell.bg.classList.toggle('low', low && showR > 0.5);
-    cell.bg.classList.toggle('rejected', c.bad && (step === 5 || (step === 4 && share[i] * decide > UNBROKEN_TIME)));
+    const rejected = c.bad && (step === 5 || (step === 4 && share[i] * decide > UNBROKEN_TIME));
+    cell.bg.classList.toggle('rejected', rejected);
+    cell.site.classList.toggle('sampled', !!sampled);
+    cell.site.classList.toggle('rejected', rejected);
     if (showPred && !sampled) predPath(cell, i, count);
     cell.pred.setAttribute('opacity', sampled ? 0 : showPred.toFixed(2));
     cell.r.textContent = rv === null ? '' : rv.toFixed(2).replace('-', '−');
