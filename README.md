@@ -1,5 +1,14 @@
 # Signal Reconstruction with RANSAC
 
+<a href="https://nicaja.github.io/RANSAC-Intracranial-Recordings/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/figures/ransac-consensus-dark.gif">
+    <img alt="Every electrode's averaged response laid out as on the array. Channels flagged by RANSAC blend from their filtered signal into their reconstruction, for the epidural grid, the intracortical array and a noise-only recording." src="docs/figures/ransac-consensus-light.gif">
+  </picture>
+</a>
+
+*Each electrode in its place on the array. Channels flagged by RANSAC (orange) blend into their reconstruction (teal): epidural µECoG, then intracortical MEA, then a noise-only recording. [Explore the interactive figures](https://nicaja.github.io/RANSAC-Intracranial-Recordings/)*
+
 Research on bad-channel detection and interpolation in high-density epidural micro-ECoG and intracortical microelectrode-array recordings. The study examines how RANSAC's spatial assumptions affect reconstructed signals, and how its behaviour changes between surface and penetrating electrode arrays.
 
 **Completed research project · IEEE EMBC 2025**
@@ -10,7 +19,7 @@ Research on bad-channel detection and interpolation in high-density epidural mic
 
 Nickolaj Ajay Atchuthan, Felipe Rettore Andreis, Winnie Jensen, and Suzan Meijs.
 
-[Published paper](https://doi.org/10.1109/EMBC58623.2025.11252752)
+[Read the paper on IEEE Xplore](https://ieeexplore.ieee.org/document/11252752) · [DOI](https://doi.org/10.1109/EMBC58623.2025.11252752)
 
 ## What the study found
 
@@ -24,19 +33,19 @@ The work compared an epidural signal, an intracortical signal, and a noise-only 
 
 *Values from Table II of the supplied manuscript. These describe the illustrated examples, not estimates of performance across a cohort.*
 
-## Examples from the manuscript
-
-![Epidural response traces before and after RANSAC](docs/figures/epidural-response-dark.png)
-
-*Epidural example from Figure 2a: filtered responses on the left and filtered + RANSAC on the right.*
-
-![Intracortical response traces before and after RANSAC](docs/figures/intracortical-response-dark.png)
-
-*Intracortical example from Figure 2b, using default parameters. These previews retain the original traces, axes, units, and sample counts, with colours adapted for a dark background. The lower diagnostic heatmaps are omitted from the previews; the [original figure PDFs and provenance](docs/figures/) are retained.*
-
 The main conclusion is that RANSAC needs modality-specific evaluation. Local activity in penetrating arrays can violate assumptions that are useful for more spatially correlated surface recordings. Signal preservation needs to be checked alongside noise reduction.
 
-## Analysis code
+## Interactive figures
+
+The [interactive page](https://nicaja.github.io/RANSAC-Intracranial-Recordings/) has three figures for each example:
+
+- every electrode's averaged response in its place on the array, with a slider from the filtered signal to the RANSAC reconstruction;
+- a replay of RANSAC's per-epoch flags building up to the 40% rule that decides which channels are interpolated;
+- the Table II changes, with correlation rising even for pure noise.
+
+The traces were digitised from the vector paths of the paper's figures. `docs/traces/build_data.py` maps every path back to seconds and microvolts using the figure axes, and assigns it to its electrode through MNE's spatial colours and the recorded montage. No recording is reanalysed. In the digitised data RANSAC left every good channel unchanged, so only the flagged channels differ between the two states. The blend between them is a visual transition; only its end points are data. The flag replay uses the bad-epoch image as rasterised in each figure, so its percentages are approximate. The [original figure PDFs and provenance](docs/figures/) are retained.
+
+## Code and supporting material
 
 | Path | Role |
 | --- | --- |
@@ -44,6 +53,8 @@ The main conclusion is that RANSAC needs modality-specific evaluation. Local act
 | `preprocessing_ECoG/` | Historical preprocessing, RANSAC comparisons, and spatial mapping |
 | `preprocessing_MEA/bad_channel_detection/` | Intracortical RANSAC and channel-quality experiments |
 | `general/` | Recording-loading helpers |
+| `docs/` | Interactive figures served by GitHub Pages |
+| `docs/traces/` | Traces digitised from the manuscript figures, with the script that builds them |
 | `docs/figures/` | Manuscript figures, reported values, and provenance |
 
 The helper accepts already preprocessed MNE epochs with a reviewed electrode montage. It applies no implicit filtering, rescaling, or channel remapping. The `epidural-paper` preset uses 7 resamples, a 0.125 channel fraction, 0.85 correlation threshold, and 0.4 bad-epoch fraction, as listed in Table I. The `default` preset retains the paper's default settings.
@@ -55,4 +66,12 @@ python -m research.ransac_comparison recordings-epo.fif --preset epidural-paper 
 python -m unittest discover -s tests -v
 ```
 
-The original scripts preserve their run-specific paths and settings, including some 50-resample exploratory comparisons. The helper makes the paper's settings explicit; it does not recreate the original preprocessing or reproduce the publication without its recordings and montages. Tests use synthetic inputs. Raw recordings are not included.
+The original scripts preserve their run-specific paths and settings, including some 50-resample exploratory comparisons. The helper makes the paper's settings explicit; it does not recreate the original preprocessing or reproduce the publication without its recordings and montages. Tests use synthetic inputs and the digitised page data. Raw recordings are not included.
+
+To rebuild the page data from the figure PDFs and preview the page locally:
+
+```sh
+python -m pip install pymupdf
+python docs/traces/build_data.py
+python -m http.server --directory docs
+```

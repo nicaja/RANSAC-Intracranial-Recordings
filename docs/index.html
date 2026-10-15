@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consensus on the array · RANSAC, EMBC 2025</title>
+  <meta name="description" content="How RANSAC judged and rebuilt channels on a 32-channel µECoG grid, a 16-channel microelectrode array and a noise-only recording. Interactive figures from the EMBC 2025 study.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/consensus.css">
+</head>
+<body>
+  <main>
+    <header class="masthead page-only">
+      <p class="kicker">IEEE EMBC 2025 · interactive figures</p>
+      <h1>Consensus on the array</h1>
+      <p class="deck">RANSAC flags channels it cannot predict from the rest of the array and rebuilds them by interpolation. On a surface µECoG grid that removed faulty channels. On a penetrating array it reshaped real responses. On pure noise it produced a convincing, highly correlated signal.</p>
+      <p class="byline">From <a href="https://doi.org/10.1109/EMBC58623.2025.11252752">Strengths &amp; Weaknesses of RANSAC applied to Epidural &amp; Intracortical Recordings</a>, Atchuthan, Andreis, Jensen &amp; Meijs · <a href="https://github.com/nicaja/RANSAC-Intracranial-Recordings">code and figures</a></p>
+    </header>
+
+    <nav class="recordings page-only" aria-label="Recording">
+      <button type="button" data-mode="epidural" aria-pressed="true"><span class="num">01</span> Epidural <small>32-ch µECoG</small></button>
+      <button type="button" data-mode="intracortical" aria-pressed="false"><span class="num">02</span> Intracortical <small>16-ch MEA</small></button>
+      <button type="button" data-mode="noise" aria-pressed="false"><span class="num">03</span> Noise only <small>32-ch µECoG</small></button>
+    </nav>
+
+    <section class="plate" id="plate-array" aria-labelledby="fig1-title">
+      <div class="plate-head page-only">
+        <span class="fig">Fig. 1</span>
+        <h2 id="fig1-title">Every electrode, in place</h2>
+        <p class="plate-note" id="recording-note"></p>
+      </div>
+      <div class="wide"><svg id="array" role="img" aria-label="Averaged evoked response of every electrode, laid out as on the array. Flagged channels morph from their filtered signal to their RANSAC reconstruction with the slider."></svg></div>
+      <div class="morph page-only">
+        <button type="button" id="play" class="play" aria-pressed="false">Play</button>
+        <label class="slider">
+          <span>Filtered</span>
+          <input type="range" id="mix" min="0" max="1000" value="0" aria-label="Blend from filtered to RANSAC-reconstructed signals">
+          <span>Filtered + RANSAC</span>
+        </label>
+        <output id="readout" class="readout" aria-live="off"></output>
+      </div>
+      <p class="caption page-only">Each cell is one channel's average over all stimuli, on one shared voltage scale. <span class="key flag">Flagged</span> channels fade into their <span class="key fix">rebuilt</span> signal; good channels did not change. The band underneath is the spread across all channels, with good channels alone in grey. Hover to read values at any time point.</p>
+    </section>
+
+    <section class="plate page-only" aria-labelledby="fig2-title">
+      <div class="plate-head">
+        <span class="fig">Fig. 2</span>
+        <h2 id="fig2-title">How the verdict builds up</h2>
+        <p class="plate-note">For every epoch, RANSAC predicts each channel from random subsets of the others and flags it when the prediction correlates poorly. A channel flagged in more than 40% of epochs is interpolated everywhere.</p>
+      </div>
+      <div class="wide"><svg id="tally" role="img" aria-label="Replay of RANSAC's per-epoch flags, accumulating each channel's share of flagged epochs against the 40% threshold."></svg></div>
+      <div class="morph">
+        <button type="button" id="replay" class="play">Replay</button>
+        <output id="epoch" class="readout"></output>
+      </div>
+    </section>
+
+    <section class="plate page-only" aria-labelledby="fig3-title">
+      <div class="plate-head">
+        <span class="fig">Fig. 3</span>
+        <h2 id="fig3-title">What the summary numbers said</h2>
+        <p class="plate-note">Change after RANSAC, as reported in Table II. Correlation rose in every example, pure noise included, so a higher correlation alone does not show that a signal was recovered.</p>
+      </div>
+      <svg id="numbers" role="img" aria-label="Percent change in standard deviation, variance and correlation after RANSAC for the three examples."></svg>
+    </section>
+
+    <footer class="page-only">
+      <p>Traces are digitised from the vector figures of the paper (<a href="https://github.com/nicaja/RANSAC-Intracranial-Recordings/tree/main/docs/traces">build script and data</a>). No recordings are reanalysed, and the epoch flags are only as fine as the published images. Values describe these examples, not a cohort.</p>
+    </footer>
+  </main>
+  <script type="module" src="assets/consensus.js"></script>
+</body>
+</html>

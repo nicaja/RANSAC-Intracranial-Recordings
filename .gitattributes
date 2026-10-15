@@ -4,3 +4,7 @@
 # Retain original figure sources and generated SVG geometry without conversion.
 docs/figures/*.pdf -text
 docs/figures/*.svg -text -whitespace linguist-generated=true
+
+# Digitised traces for the interactive figures: keep byte for byte
+docs/traces/*.bin binary
+docs/traces/meta.json linguist-generated=true
