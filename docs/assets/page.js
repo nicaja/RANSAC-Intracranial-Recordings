@@ -29,7 +29,7 @@ const STEPS = [
   {
     label: 'sample', ms: 2600,
     title: (x) => `Pick ${x.k} random contacts`,
-    caption: (x) => `RANSAC starts by picking a random ${Math.round(x.s.min_channels * 100)}% of the contacts (${x.k} of ${x.n}) to act as a reference.`,
+    caption: (x) => `RANSAC starts by picking a random ${x.s.min_channels * 100}% of the contacts (${x.k} of ${x.n}) to act as a reference.`,
   },
   {
     label: 'predict', ms: 2800,
